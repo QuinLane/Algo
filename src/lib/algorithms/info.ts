@@ -8,6 +8,7 @@ import { info as heapSortInfo } from "./sorting/heap/info";
 import { info as linearSearchInfo } from "./searching/linear/info";
 import { info as binarySearchInfo } from "./searching/binary/info";
 import { info as bfsInfo } from "./graph/bfs/info";
+import { info as dfsInfo } from "./graph/dfs/info";
 
 // Entries added here with each algorithm info commit
 const infoRegistry: Record<string, AlgorithmInfoContent> = {
@@ -20,6 +21,7 @@ const infoRegistry: Record<string, AlgorithmInfoContent> = {
   "linear-search": linearSearchInfo,
   "binary-search": binarySearchInfo,
   bfs: bfsInfo,
+  dfs: dfsInfo,
 };
 
 export function getAlgorithmInfo(id: string): AlgorithmInfoContent | undefined {
