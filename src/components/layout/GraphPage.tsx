@@ -8,6 +8,9 @@ import { useGraphPlayer } from "@/hooks/useGraphPlayer";
 import GraphVisualizer from "@/components/visualizer/GraphVisualizer";
 import PlayerControls from "@/components/controls/PlayerControls";
 import StepScrubber from "@/components/controls/StepScrubber";
+import { getAlgorithmInfo } from "@/lib/algorithms/info";
+import AlgorithmInfo from "@/components/info/AlgorithmInfo";
+import CodeViewer from "@/components/info/CodeViewer";
 
 interface Props {
   meta: AlgorithmMeta;
@@ -31,6 +34,7 @@ export default function GraphPage({ meta, generateTrace, weighted = false }: Pro
 
   useEffect(() => { buildGraph(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const algorithmInfo = getAlgorithmInfo(meta.id);
   const nodesVisited = trace?.nodesVisited ?? 0;
   const edgesRelaxed = trace?.edgesRelaxed ?? 0;
   const startId = graphData?.startId ?? "A";
@@ -82,6 +86,16 @@ export default function GraphPage({ meta, generateTrace, weighted = false }: Pro
         </div>
         <StepScrubber step={step} totalSteps={totalSteps} onScrub={scrubTo} />
       </div>
+
+      {algorithmInfo && (
+        <div className="flex flex-col gap-6 pt-2">
+          <h2 className="text-lg font-semibold text-[var(--color-text-primary)] border-t border-[var(--color-border)] pt-5">
+            About {meta.name}
+          </h2>
+          <AlgorithmInfo content={algorithmInfo.explanation} />
+          <CodeViewer code={algorithmInfo.code} />
+        </div>
+      )}
     </div>
   );
 }

@@ -13,6 +13,9 @@ import ArrayControls from "@/components/controls/ArrayControls";
 import StepScrubber from "@/components/controls/StepScrubber";
 import AlgorithmStats from "@/components/stats/AlgorithmStats";
 import { useAudio } from "@/hooks/useAudio";
+import { getAlgorithmInfo } from "@/lib/algorithms/info";
+import AlgorithmInfo from "@/components/info/AlgorithmInfo";
+import CodeViewer from "@/components/info/CodeViewer";
 
 interface Props {
   meta: AlgorithmMeta;
@@ -93,6 +96,8 @@ export default function SortPage({
     play();
   };
 
+  const algorithmInfo = getAlgorithmInfo(meta.id);
+
   return (
     <div className="p-6 max-w-4xl flex flex-col gap-5">
       <div>
@@ -135,6 +140,16 @@ export default function SortPage({
         </div>
         <StepScrubber step={step} totalSteps={totalSteps} onScrub={scrubTo} />
       </div>
+
+      {algorithmInfo && (
+        <div className="flex flex-col gap-6 pt-2">
+          <h2 className="text-lg font-semibold text-[var(--color-text-primary)] border-t border-[var(--color-border)] pt-5">
+            About {meta.name}
+          </h2>
+          <AlgorithmInfo content={algorithmInfo.explanation} />
+          <CodeViewer code={algorithmInfo.code} />
+        </div>
+      )}
     </div>
   );
 }

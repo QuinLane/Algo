@@ -9,6 +9,9 @@ import PlayerControls from "@/components/controls/PlayerControls";
 import ArrayControls from "@/components/controls/ArrayControls";
 import StepScrubber from "@/components/controls/StepScrubber";
 import { useAudio } from "@/hooks/useAudio";
+import { getAlgorithmInfo } from "@/lib/algorithms/info";
+import AlgorithmInfo from "@/components/info/AlgorithmInfo";
+import CodeViewer from "@/components/info/CodeViewer";
 
 interface Props {
   meta: AlgorithmMeta;
@@ -78,6 +81,7 @@ export default function SearchPage({ meta, generateTrace }: Props) {
 
   const searchFrame = frame as any;
   const result = trace as SearchTrace | null;
+  const algorithmInfo = getAlgorithmInfo(meta.id);
 
   return (
     <div className="p-6 max-w-4xl flex flex-col gap-5">
@@ -143,6 +147,16 @@ export default function SearchPage({ meta, generateTrace }: Props) {
         </div>
         <StepScrubber step={step} totalSteps={totalSteps} onScrub={scrubTo} />
       </div>
+
+      {algorithmInfo && (
+        <div className="flex flex-col gap-6 pt-2">
+          <h2 className="text-lg font-semibold text-[var(--color-text-primary)] border-t border-[var(--color-border)] pt-5">
+            About {meta.name}
+          </h2>
+          <AlgorithmInfo content={algorithmInfo.explanation} />
+          <CodeViewer code={algorithmInfo.code} />
+        </div>
+      )}
     </div>
   );
 }
