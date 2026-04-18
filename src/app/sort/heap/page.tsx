@@ -1,3 +1,11 @@
+"use client";
+
+import SortPage from "@/components/layout/SortPage";
+import { heapSort } from "@/lib/algorithms/sorting/heapSort";
+import { registry } from "@/lib/registry";
+
+const meta = registry.find((a) => a.id === "heap-sort")!;
+
 export default function Page() {
-  return <h1 className="p-8 text-2xl font-bold capitalize">heap Sort</h1>;
+  return <SortPage meta={meta} generateTrace={heapSort} />;
 }
