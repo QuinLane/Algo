@@ -66,6 +66,7 @@ function Bars({
             cy={100 - (v / max) * 98}
             r={Math.max(0.4, 50 / n)}
             fill={scatterDot(i, v, max, frame)}
+            style={{ transition: "fill 0.08s ease" }}
           />
         ))}
       </svg>
@@ -88,6 +89,7 @@ function Bars({
             width={0.9}
             height={h}
             fill={barColor(i, v, max, frame, mode)}
+            style={{ transition: "fill 0.08s ease, y 0.06s ease, height 0.06s ease" }}
           />
         );
       })}
