@@ -12,6 +12,7 @@ import PlayerControls from "@/components/controls/PlayerControls";
 import ArrayControls from "@/components/controls/ArrayControls";
 import StepScrubber from "@/components/controls/StepScrubber";
 import AlgorithmStats from "@/components/stats/AlgorithmStats";
+import { useAudio } from "@/hooks/useAudio";
 
 interface Props {
   meta: AlgorithmMeta;
@@ -45,6 +46,9 @@ export default function SortPage({
     scrubTo,
     reset,
   } = useAlgorithmPlayer(trace);
+
+  const maxValue = trace ? Math.max(...(trace.frames[0]?.array ?? [1])) : 100;
+  const { enabled: soundEnabled, toggle: toggleSound } = useAudio(frame, maxValue);
 
   const buildTrace = useCallback(
     (size: number) => {
@@ -119,11 +123,13 @@ export default function SortPage({
           <PlayerControls
             playerState={playerState}
             speed={speed}
+            soundEnabled={soundEnabled}
             onPlay={handlePlay}
             onPause={pause}
             onStepBack={stepBack}
             onStepForward={stepForward}
             onSpeedChange={setSpeed}
+            onSoundToggle={toggleSound}
           />
           <ArrayControls n={n} onNChange={handleNChange} onShuffle={handleShuffle} />
         </div>

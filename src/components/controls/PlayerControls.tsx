@@ -7,21 +7,25 @@ const SPEEDS = [0.25, 0.5, 1, 2, 4];
 interface Props {
   playerState: PlayerState;
   speed: number;
+  soundEnabled: boolean;
   onPlay: () => void;
   onPause: () => void;
   onStepBack: () => void;
   onStepForward: () => void;
   onSpeedChange: (s: number) => void;
+  onSoundToggle: () => void;
 }
 
 export default function PlayerControls({
   playerState,
   speed,
+  soundEnabled,
   onPlay,
   onPause,
   onStepBack,
   onStepForward,
   onSpeedChange,
+  onSoundToggle,
 }: Props) {
   const isPlaying = playerState === "playing";
 
@@ -49,6 +53,18 @@ export default function PlayerControls({
         title="Step forward"
       >
         ▶
+      </button>
+
+      <button
+        onClick={onSoundToggle}
+        className={`w-8 h-8 flex items-center justify-center rounded border transition-colors text-sm ${
+          soundEnabled
+            ? "bg-[var(--color-accent)] border-[var(--color-accent)] text-black"
+            : "bg-[var(--color-bg-card)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-accent)]"
+        }`}
+        title={soundEnabled ? "Mute" : "Unmute"}
+      >
+        {soundEnabled ? "🔊" : "🔇"}
       </button>
 
       <div className="flex items-center gap-1 ml-2">
