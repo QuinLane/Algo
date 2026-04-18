@@ -1,3 +1,11 @@
+"use client";
+
+import GraphPage from "@/components/layout/GraphPage";
+import { bfs } from "@/lib/algorithms/graph/bfs";
+import { registry } from "@/lib/registry";
+
+const meta = registry.find((a) => a.id === "bfs")!;
+
 export default function Page() {
-  return <h1 className="p-8 text-2xl font-bold uppercase">bfs</h1>;
+  return <GraphPage meta={meta} generateTrace={bfs} />;
 }

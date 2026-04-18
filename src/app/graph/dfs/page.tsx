@@ -1,3 +1,11 @@
+"use client";
+
+import GraphPage from "@/components/layout/GraphPage";
+import { dfs } from "@/lib/algorithms/graph/dfs";
+import { registry } from "@/lib/registry";
+
+const meta = registry.find((a) => a.id === "dfs")!;
+
 export default function Page() {
-  return <h1 className="p-8 text-2xl font-bold uppercase">dfs</h1>;
+  return <GraphPage meta={meta} generateTrace={dfs} />;
 }
