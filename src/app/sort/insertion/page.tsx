@@ -1,3 +1,5 @@
+"use client";
+
 import SortPage from "@/components/layout/SortPage";
 import { insertionSort } from "@/lib/algorithms/sorting/insertionSort";
 import { registry } from "@/lib/registry";
