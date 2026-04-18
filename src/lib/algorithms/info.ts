@@ -3,6 +3,7 @@ import { info as bubbleSortInfo } from "./sorting/bubble/info";
 import { info as insertionSortInfo } from "./sorting/insertion/info";
 import { info as selectionSortInfo } from "./sorting/selection/info";
 import { info as mergeSortInfo } from "./sorting/merge/info";
+import { info as quickSortInfo } from "./sorting/quick/info";
 
 // Entries added here with each algorithm info commit
 const infoRegistry: Record<string, AlgorithmInfoContent> = {
@@ -10,6 +11,7 @@ const infoRegistry: Record<string, AlgorithmInfoContent> = {
   "insertion-sort": insertionSortInfo,
   "selection-sort": selectionSortInfo,
   "merge-sort": mergeSortInfo,
+  "quick-sort": quickSortInfo,
 };
 
 export function getAlgorithmInfo(id: string): AlgorithmInfoContent | undefined {
