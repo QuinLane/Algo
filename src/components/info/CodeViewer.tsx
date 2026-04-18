@@ -73,7 +73,7 @@ export default function CodeViewer({ code }: Props) {
           background: "var(--color-bg-card)",
           fontSize: "0.78rem",
           lineHeight: "1.6",
-          padding: "1.25rem",
+          padding: "1.25rem 0",
         }}
         showLineNumbers
         lineNumberStyle={{
@@ -81,8 +81,11 @@ export default function CodeViewer({ code }: Props) {
           opacity: 0.5,
           minWidth: "2.5em",
           paddingRight: "1em",
+          paddingLeft: "1.25rem",
           userSelect: "none",
         }}
+        wrapLines
+        lineProps={{ style: { display: "block", paddingRight: "1.25rem" } }}
       >
         {code[activeLang]}
       </SyntaxHighlighter>

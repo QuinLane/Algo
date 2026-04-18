@@ -16,33 +16,19 @@ export default function AlgorithmInfo({ content }: Props) {
         </p>
       </section>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <section className="rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] p-5">
-          <h2 className="text-base font-semibold text-[var(--color-accent)] mb-3">How It Works</h2>
-          <ol className="flex flex-col gap-2">
-            {content.howItWorks.map((step, i) => (
-              <li key={i} className="flex gap-3 text-sm text-[var(--color-text-primary)]">
-                <span className="shrink-0 w-5 h-5 rounded-full bg-[var(--color-bg-card)] border border-[var(--color-border)] flex items-center justify-center text-[10px] font-mono text-[var(--color-accent)] mt-0.5">
-                  {i + 1}
-                </span>
-                <span className="leading-relaxed">{step}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section className="rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] p-5">
-          <h2 className="text-base font-semibold text-[var(--color-accent)] mb-3">Use Cases</h2>
-          <ul className="flex flex-col gap-2">
-            {content.useCases.map((use, i) => (
-              <li key={i} className="flex gap-2 text-sm text-[var(--color-text-primary)] leading-relaxed">
-                <span className="text-[var(--color-accent)] shrink-0 mt-1">›</span>
-                {use}
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
+      <section className="rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] p-5">
+        <h2 className="text-base font-semibold text-[var(--color-accent)] mb-3">How It Works</h2>
+        <ol className="flex flex-col gap-2">
+          {content.howItWorks.map((step, i) => (
+            <li key={i} className="flex gap-3 text-sm text-[var(--color-text-primary)]">
+              <span className="shrink-0 w-5 h-5 rounded-full bg-[var(--color-bg-card)] border border-[var(--color-border)] flex items-center justify-center text-[10px] font-mono text-[var(--color-accent)] mt-0.5">
+                {i + 1}
+              </span>
+              <span className="leading-relaxed">{step}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       <section className="rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] p-5">
         <h2 className="text-base font-semibold text-[var(--color-accent)] mb-3">Complexity Analysis</h2>
