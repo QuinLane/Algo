@@ -1,3 +1,9 @@
+import SortPage from "@/components/layout/SortPage";
+import { selectionSort } from "@/lib/algorithms/sorting/selectionSort";
+import { registry } from "@/lib/registry";
+
+const meta = registry.find((a) => a.id === "selection-sort")!;
+
 export default function Page() {
-  return <h1 className="p-8 text-2xl font-bold capitalize">selection Sort</h1>;
+  return <SortPage meta={meta} generateTrace={selectionSort} />;
 }
