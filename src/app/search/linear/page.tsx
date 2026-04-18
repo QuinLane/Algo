@@ -1,3 +1,11 @@
+"use client";
+
+import SearchPage from "@/components/layout/SearchPage";
+import { linearSearch } from "@/lib/algorithms/searching/linearSearch";
+import { registry } from "@/lib/registry";
+
+const meta = registry.find((a) => a.id === "linear-search")!;
+
 export default function Page() {
-  return <h1 className="p-8 text-2xl font-bold capitalize">linear Search</h1>;
+  return <SearchPage meta={meta} generateTrace={linearSearch} />;
 }
