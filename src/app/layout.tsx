@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="en" className={`${geistMono.variable} h-full`}>
       <body className="min-h-full flex bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
         <Sidebar />
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto pt-12 md:pt-0">{children}</main>
       </body>
     </html>
   );

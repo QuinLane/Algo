@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -38,12 +39,34 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   return (
-    <nav className="w-56 shrink-0 border-r border-[var(--color-border)] bg-[var(--color-bg-secondary)] h-screen sticky top-0 overflow-y-auto p-4 flex flex-col gap-1">
-      <p className="text-[var(--color-accent)] font-bold text-sm uppercase tracking-widest mb-4 px-2">
-        Algo
-      </p>
+    <>
+      {/* Mobile top bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3 bg-[var(--color-bg-secondary)] border-b border-[var(--color-border)]">
+        <span className="text-[var(--color-accent)] font-bold text-sm uppercase tracking-widest">Algo</span>
+        <button onClick={() => setOpen((v) => !v)} className="text-[var(--color-text-primary)] text-lg">
+          {open ? "✕" : "☰"}
+        </button>
+      </div>
+
+      {/* Mobile drawer backdrop */}
+      {open && (
+        <div className="md:hidden fixed inset-0 z-10 bg-black/60" onClick={() => setOpen(false)} />
+      )}
+
+      {/* Sidebar */}
+      <nav className={`
+        fixed md:sticky top-0 z-20 h-screen overflow-y-auto p-4 flex flex-col gap-1
+        w-56 shrink-0 border-r border-[var(--color-border)] bg-[var(--color-bg-secondary)]
+        transition-transform md:translate-x-0
+        ${open ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+      `}>
+        <p className="text-[var(--color-accent)] font-bold text-sm uppercase tracking-widest mb-4 px-2 hidden md:block">
+          Algo
+        </p>
+        <div className="mt-12 md:mt-0" />
       {navItems.map((item) => (
         <div key={item.href}>
           <Link
@@ -72,6 +95,7 @@ export default function Sidebar() {
             ))}
         </div>
       ))}
-    </nav>
+      </nav>
+    </>
   );
 }
