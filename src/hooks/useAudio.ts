@@ -2,20 +2,29 @@
 
 import { useState, useEffect, useRef } from "react";
 import { playTone, resumeCtx } from "@/lib/sound/audioEngine";
-import type { SortFrame } from "@/types/algorithm";
+import type { SortFrame, SearchFrame } from "@/types/algorithm";
 
-export function useAudio(frame: SortFrame | null, maxValue: number) {
+type AudioFrame = SortFrame | SearchFrame | null;
+
+export function useAudio(frame: AudioFrame, maxValue: number) {
   const [enabled, setEnabled] = useState(false);
-  const prevFrameRef = useRef<SortFrame | null>(null);
+  const prevFrameRef = useRef<AudioFrame>(null);
 
   useEffect(() => {
     if (!enabled || !frame || frame === prevFrameRef.current) return;
     prevFrameRef.current = frame;
 
-    const indices = frame.compared.length
-      ? frame.compared
-      : frame.swapped.length
-      ? frame.swapped
+    const searchFrame = frame as SearchFrame;
+    if (searchFrame.current !== undefined && !("compared" in frame)) {
+      playTone(frame.array[searchFrame.current] ?? searchFrame.current, maxValue);
+      return;
+    }
+
+    const sortFrame = frame as SortFrame;
+    const indices = sortFrame.compared?.length
+      ? sortFrame.compared
+      : sortFrame.swapped?.length
+      ? sortFrame.swapped
       : [];
 
     if (indices.length > 0) {
