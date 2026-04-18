@@ -1,7 +1,7 @@
 "use client";
 
 import SortPage from "@/components/layout/SortPage";
-import { selectionSort } from "@/lib/algorithms/sorting/selectionSort";
+import { selectionSort } from "@/lib/algorithms/sorting/selection";
 import { registry } from "@/lib/registry";
 
 const meta = registry.find((a) => a.id === "selection-sort")!;

@@ -1,7 +1,7 @@
 "use client";
 
 import SearchPage from "@/components/layout/SearchPage";
-import { binarySearch } from "@/lib/algorithms/searching/binarySearch";
+import { binarySearch } from "@/lib/algorithms/searching/binary";
 import { registry } from "@/lib/registry";
 
 const meta = registry.find((a) => a.id === "binary-search")!;

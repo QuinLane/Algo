@@ -1,7 +1,7 @@
 "use client";
 
 import SortPage from "@/components/layout/SortPage";
-import { heapSort } from "@/lib/algorithms/sorting/heapSort";
+import { heapSort } from "@/lib/algorithms/sorting/heap";
 import { registry } from "@/lib/registry";
 
 const meta = registry.find((a) => a.id === "heap-sort")!;

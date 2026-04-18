@@ -1,7 +1,7 @@
 "use client";
 
 import SortPage from "@/components/layout/SortPage";
-import { mergeSort } from "@/lib/algorithms/sorting/mergeSort";
+import { mergeSort } from "@/lib/algorithms/sorting/merge";
 import { registry } from "@/lib/registry";
 
 const meta = registry.find((a) => a.id === "merge-sort")!;

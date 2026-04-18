@@ -1,7 +1,7 @@
 "use client";
 
 import SortPage from "@/components/layout/SortPage";
-import { bubbleSort } from "@/lib/algorithms/sorting/bubbleSort";
+import { bubbleSort } from "@/lib/algorithms/sorting/bubble";
 import { registry } from "@/lib/registry";
 
 const meta = registry.find((a) => a.id === "bubble-sort")!;
