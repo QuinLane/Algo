@@ -9,6 +9,7 @@ import { info as linearSearchInfo } from "./searching/linear/info";
 import { info as binarySearchInfo } from "./searching/binary/info";
 import { info as bfsInfo } from "./graph/bfs/info";
 import { info as dfsInfo } from "./graph/dfs/info";
+import { info as dijkstraInfo } from "./graph/dijkstra/info";
 
 // Entries added here with each algorithm info commit
 const infoRegistry: Record<string, AlgorithmInfoContent> = {
@@ -22,6 +23,7 @@ const infoRegistry: Record<string, AlgorithmInfoContent> = {
   "binary-search": binarySearchInfo,
   bfs: bfsInfo,
   dfs: dfsInfo,
+  dijkstra: dijkstraInfo,
 };
 
 export function getAlgorithmInfo(id: string): AlgorithmInfoContent | undefined {
