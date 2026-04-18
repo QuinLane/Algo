@@ -80,7 +80,7 @@ export default function Sidebar() {
             {item.label}
           </Link>
           {"children" in item &&
-            item.children.map((child) => (
+            item.children?.map((child) => (
               <Link
                 key={child.href}
                 href={child.href}
