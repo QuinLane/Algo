@@ -6,6 +6,7 @@ import { info as mergeSortInfo } from "./sorting/merge/info";
 import { info as quickSortInfo } from "./sorting/quick/info";
 import { info as heapSortInfo } from "./sorting/heap/info";
 import { info as linearSearchInfo } from "./searching/linear/info";
+import { info as binarySearchInfo } from "./searching/binary/info";
 
 // Entries added here with each algorithm info commit
 const infoRegistry: Record<string, AlgorithmInfoContent> = {
@@ -16,6 +17,7 @@ const infoRegistry: Record<string, AlgorithmInfoContent> = {
   "quick-sort": quickSortInfo,
   "heap-sort": heapSortInfo,
   "linear-search": linearSearchInfo,
+  "binary-search": binarySearchInfo,
 };
 
 export function getAlgorithmInfo(id: string): AlgorithmInfoContent | undefined {
