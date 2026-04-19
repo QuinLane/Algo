@@ -1,11 +1,10 @@
 "use client";
 
-export type VizMode = "bar" | "heatmap" | "scatter";
+export type VizMode = "bar" | "arcs";
 
 const MODES: { id: VizMode; label: string }[] = [
   { id: "bar", label: "Bar" },
-  { id: "heatmap", label: "Heatmap" },
-  { id: "scatter", label: "Scatter" },
+  { id: "arcs", label: "Arcs" },
 ];
 
 interface Props {

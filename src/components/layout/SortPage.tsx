@@ -5,9 +5,6 @@ import type { AlgorithmMeta, SortTrace } from "@/types/algorithm";
 import { generateArray, shuffleArray } from "@/lib/utils/arrayUtils";
 import { useAlgorithmPlayer } from "@/hooks/useAlgorithmPlayer";
 import BarVisualizer from "@/components/visualizer/BarVisualizer";
-import VisualizerSwitcher, {
-  type VizMode,
-} from "@/components/visualizer/VisualizerSwitcher";
 import PlayerControls from "@/components/controls/PlayerControls";
 import ArrayControls from "@/components/controls/ArrayControls";
 import StepScrubber from "@/components/controls/StepScrubber";
@@ -29,7 +26,6 @@ export default function SortPage({
   hasAuxiliary = false,
 }: Props) {
   const [n, setN] = useState(32);
-  const [mode, setMode] = useState<VizMode>("bar");
   const [trace, setTrace] = useState<SortTrace | null>(null);
   const [startTime, setStartTime] = useState<number>(0);
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -120,11 +116,7 @@ export default function SortPage({
         n={n}
       />
 
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <VisualizerSwitcher mode={mode} onChange={setMode} />
-      </div>
-
-      <BarVisualizer frame={frame} mode={mode} showAuxiliary={hasAuxiliary} />
+      <BarVisualizer frame={frame} showAuxiliary={hasAuxiliary} />
 
       <div className="flex flex-col gap-3 p-4 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)]">
         <div className="flex items-center justify-between flex-wrap gap-4">
