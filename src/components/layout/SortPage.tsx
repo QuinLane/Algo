@@ -118,11 +118,12 @@ export default function SortPage({
         n={n}
       />
 
+      {/* Arc mode switcher — disabled until arc visuals are refined
       <div className="flex items-center justify-between flex-wrap gap-3">
         <VisualizerSwitcher mode={mode} onChange={setMode} />
-      </div>
+      </div> */}
 
-      <BarVisualizer frame={frame} mode={mode} showAuxiliary={hasAuxiliary} />
+      <BarVisualizer frame={frame} showAuxiliary={hasAuxiliary} />
 
       <div className="flex flex-col gap-3 p-4 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)]">
         <div className="flex items-center justify-between flex-wrap gap-4">
