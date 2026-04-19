@@ -96,9 +96,47 @@ export interface PathfindingTrace {
   pathFound: boolean;
 }
 
+// Trees
+
+export type TreeNodeState =
+  | "default"
+  | "active"
+  | "path"
+  | "inserted"
+  | "rotated"
+  | "found"
+  | "highlighted";
+
+export interface TreeNode {
+  id: number;
+  value: number;
+  leftId: number | null;
+  rightId: number | null;
+  parentId: number | null;
+  x: number;
+  y: number;
+  state: TreeNodeState;
+  height?: number;
+  balanceFactor?: number;
+}
+
+export interface TreeFrame {
+  nodes: TreeNode[];
+  rootId: number | null;
+  message?: string;
+  outputList?: number[];
+  comparisons: number;
+}
+
+export interface TreeTrace {
+  frames: TreeFrame[];
+  totalComparisons: number;
+  treeHeight: number;
+}
+
 // Shared
 
-export type AlgorithmCategory = "sort" | "search" | "graph" | "pathfinding";
+export type AlgorithmCategory = "sort" | "search" | "graph" | "pathfinding" | "tree";
 
 export interface AlgorithmMeta {
   id: string;
