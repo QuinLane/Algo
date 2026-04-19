@@ -63,7 +63,8 @@ export function buildFrame(
   states: Map<number, TreeNodeState>,
   comparisons: number,
   message?: string,
-  outputList?: number[]
+  outputList?: number[],
+  insertionIndex?: number
 ): TreeFrame {
   return {
     nodes: computeLayout(nodeMap, rootId, states),
@@ -71,6 +72,7 @@ export function buildFrame(
     message,
     outputList: outputList !== undefined ? [...outputList] : undefined,
     comparisons,
+    insertionIndex,
   };
 }
 

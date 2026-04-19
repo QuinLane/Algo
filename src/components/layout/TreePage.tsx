@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import type { AlgorithmMeta, TreeTrace } from "@/types/algorithm";
 import { useTreePlayer } from "@/hooks/useTreePlayer";
-import TreeVisualizer from "@/components/visualizer/TreeVisualizer";
+import TreeVisualizer, { type StableViewBox } from "@/components/visualizer/TreeVisualizer";
 import PlayerControls from "@/components/controls/PlayerControls";
 import StepScrubber from "@/components/controls/StepScrubber";
 import { getAlgorithmInfo } from "@/lib/algorithms/info";
@@ -19,6 +19,8 @@ const TRAVERSAL_LABELS: Record<TraversalType, string> = {
 };
 
 const DEFAULT_VALUES = [8, 3, 10, 1, 6, 14, 4, 7, 13];
+const NODE_RADIUS = 20;
+const VB_PADDING = 24;
 
 function parseValues(input: string): number[] {
   return input
@@ -26,6 +28,22 @@ function parseValues(input: string): number[] {
     .map((s) => parseInt(s.trim(), 10))
     .filter((n) => !isNaN(n) && n >= 0 && n <= 999)
     .slice(0, 20);
+}
+
+function computeStableViewBox(trace: TreeTrace | null): StableViewBox | null {
+  if (!trace || trace.frames.length === 0) return null;
+  const last = trace.frames[trace.frames.length - 1];
+  if (last.nodes.length === 0) return null;
+  const xs = last.nodes.map((n) => n.x);
+  const ys = last.nodes.map((n) => n.y);
+  const minX = Math.min(...xs) - NODE_RADIUS - VB_PADDING;
+  const maxX = Math.max(...xs) + NODE_RADIUS + VB_PADDING;
+  const maxY = Math.max(...ys) + NODE_RADIUS + VB_PADDING;
+  return {
+    minX,
+    width: Math.max(maxX - minX, 200),
+    height: Math.max(maxY, 100),
+  };
 }
 
 interface Props {
@@ -43,6 +61,8 @@ export default function TreePage({ meta, showTraversalSelector, generateTrace }:
 
   const { step, totalSteps, frame, playerState, speed, setSpeed, play, pause, stepForward, stepBack, scrubTo, reset } =
     useTreePlayer(trace);
+
+  const stableViewBox = useMemo(() => computeStableViewBox(trace), [trace]);
 
   const handleBuild = useCallback(() => {
     const values = parseValues(inputStr);
@@ -64,6 +84,10 @@ export default function TreePage({ meta, showTraversalSelector, generateTrace }:
 
   const algorithmInfo = getAlgorithmInfo(meta.id);
   const treeHeight = trace?.treeHeight ?? 0;
+
+  // Bubble panel: only for BST/AVL (not traversals)
+  const inputValues = useMemo(() => parseValues(inputStr), [inputStr]);
+  const insertionIndex = frame?.insertionIndex;
 
   return (
     <div className="p-6 max-w-4xl flex flex-col gap-5">
@@ -92,8 +116,38 @@ export default function TreePage({ meta, showTraversalSelector, generateTrace }:
         ))}
       </div>
 
-      <TreeVisualizer frame={frame} />
+      <TreeVisualizer frame={frame} stableViewBox={stableViewBox} />
 
+      {/* Insertion bubble panel — BST and AVL only */}
+      {!showTraversalSelector && inputValues.length > 0 && (
+        <div className="px-4 py-3 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)]">
+          <span className="block text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-mono mb-2">
+            Insertion sequence
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {inputValues.map((v, idx) => {
+              const isCurrent = insertionIndex !== undefined && insertionIndex === idx;
+              const isDone = insertionIndex === undefined ? true : idx < insertionIndex;
+              return (
+                <span
+                  key={idx}
+                  className={`px-2 py-0.5 rounded text-xs font-mono transition-colors ${
+                    isCurrent
+                      ? "bg-[#22c55e] text-[#030712]"
+                      : isDone
+                      ? "bg-[var(--color-border)] text-[var(--color-text-muted)]"
+                      : "bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[var(--color-text-muted)] opacity-50"
+                  }`}
+                >
+                  {v}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Traversal output panel */}
       {showTraversalSelector && frame?.outputList && frame.outputList.length > 0 && (
         <div className="px-4 py-3 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)]">
           <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-mono">
@@ -170,7 +224,7 @@ export default function TreePage({ meta, showTraversalSelector, generateTrace }:
         <StepScrubber step={step} totalSteps={totalSteps} onScrub={scrubTo} />
 
         <p className="text-[10px] text-[var(--color-text-muted)] font-mono">
-          Enter up to 20 values (0–999), comma or space separated · Press Enter or Build
+          Up to 20 values (0–999), comma or space separated · Enter or Build to generate
         </p>
       </div>
 

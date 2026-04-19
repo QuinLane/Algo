@@ -34,14 +34,24 @@ const NODE_TEXT: Record<string, string> = {
   highlighted: "#030712",
 };
 
-interface Props {
-  frame: TreeFrame | null;
+export interface StableViewBox {
+  minX: number;
+  width: number;
+  height: number;
 }
 
-export default function TreeVisualizer({ frame }: Props) {
+interface Props {
+  frame: TreeFrame | null;
+  stableViewBox?: StableViewBox | null;
+}
+
+export default function TreeVisualizer({ frame, stableViewBox }: Props) {
   if (!frame || frame.nodes.length === 0) {
     return (
-      <div className="flex items-center justify-center h-56 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)]">
+      <div
+        className="flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)]"
+        style={{ height: stableViewBox ? `${Math.round((stableViewBox.height / stableViewBox.width) * 100) + 5}vh` : "180px", maxHeight: "420px" }}
+      >
         <p className="text-[var(--color-text-muted)] text-sm font-mono">
           Enter values and press Build
         </p>
@@ -50,24 +60,26 @@ export default function TreeVisualizer({ frame }: Props) {
   }
 
   const { nodes } = frame;
-
-  const xs = nodes.map((n) => n.x);
-  const ys = nodes.map((n) => n.y);
-  const minX = Math.min(...xs) - NODE_RADIUS - 24;
-  const maxX = Math.max(...xs) + NODE_RADIUS + 24;
-  const maxY = Math.max(...ys) + NODE_RADIUS + 24;
-  const vbWidth = Math.max(maxX - minX, 160);
-  const vbHeight = Math.max(maxY, 80);
-
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
 
+  // Compute viewBox from current frame
+  const xs = nodes.map((n) => n.x);
+  const ys = nodes.map((n) => n.y);
+  const curMinX = Math.min(...xs) - NODE_RADIUS - 24;
+  const curMaxX = Math.max(...xs) + NODE_RADIUS + 24;
+  const curMaxY = Math.max(...ys) + NODE_RADIUS + 24;
+
+  // Use stable (final-tree) dimensions if provided, else use current frame's dimensions
+  const vbMinX = stableViewBox ? stableViewBox.minX : curMinX;
+  const vbWidth = stableViewBox ? stableViewBox.width : Math.max(curMaxX - curMinX, 160);
+  const vbHeight = stableViewBox ? stableViewBox.height : Math.max(curMaxY, 80);
+
   return (
-    <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] overflow-x-auto">
+    <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-secondary)] overflow-hidden">
       <svg
-        viewBox={`${minX} 0 ${vbWidth} ${vbHeight}`}
+        viewBox={`${vbMinX} 0 ${vbWidth} ${vbHeight}`}
         width="100%"
-        style={{ minHeight: "180px", maxHeight: "420px" }}
-        className="block"
+        style={{ display: "block", maxHeight: "420px" }}
       >
         {/* Edges */}
         {nodes.flatMap((node) => {
@@ -78,10 +90,8 @@ export default function TreeVisualizer({ frame }: Props) {
               lines.push(
                 <line
                   key={`e-${node.id}-l`}
-                  x1={node.x}
-                  y1={node.y}
-                  x2={child.x}
-                  y2={child.y}
+                  x1={node.x} y1={node.y}
+                  x2={child.x} y2={child.y}
                   stroke="var(--color-border)"
                   strokeWidth={1.5}
                 />
@@ -94,10 +104,8 @@ export default function TreeVisualizer({ frame }: Props) {
               lines.push(
                 <line
                   key={`e-${node.id}-r`}
-                  x1={node.x}
-                  y1={node.y}
-                  x2={child.x}
-                  y2={child.y}
+                  x1={node.x} y1={node.y}
+                  x2={child.x} y2={child.y}
                   stroke="var(--color-border)"
                   strokeWidth={1.5}
                 />

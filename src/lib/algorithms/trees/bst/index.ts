@@ -8,21 +8,21 @@ export function buildBST(values: number[]): TreeTrace {
   let nextId = 0;
   let comparisons = 0;
 
-  for (const value of values) {
+  for (let i = 0; i < values.length; i++) {
+    const value = values[i];
     const newId = nextId++;
     const newNode: RawNode = { id: newId, value, left: null, right: null, parent: null };
 
     if (rootId === null) {
       rootId = newId;
       nodeMap.set(newId, newNode);
-      const states = new Map<number, TreeNodeState>([[newId, "inserted"]]);
-      frames.push(buildFrame(nodeMap, rootId, states, comparisons, `Insert ${value} as root`));
+      frames.push(buildFrame(nodeMap, rootId, new Map([[newId, "inserted"]]), comparisons, `Insert ${value} as root`, undefined, i));
+      frames.push(buildFrame(nodeMap, rootId, new Map(), comparisons, undefined, undefined, i));
       continue;
     }
 
     nodeMap.set(newId, newNode);
 
-    // Walk down the tree, recording each comparison
     const pathIds: number[] = [];
     let curId = rootId;
 
@@ -31,36 +31,19 @@ export function buildBST(values: number[]): TreeTrace {
       comparisons++;
       pathIds.push(curId);
 
-      // Snapshot: highlight path so far, active on current
       const states = new Map<number, TreeNodeState>();
       for (const id of pathIds.slice(0, -1)) states.set(id, "path");
       states.set(curId, "active");
-      frames.push(
-        buildFrame(
-          nodeMap,
-          rootId,
-          states,
-          comparisons,
-          `Insert ${value}: compare with ${cur.value}`
-        )
-      );
+      frames.push(buildFrame(nodeMap, rootId, states, comparisons, `Insert ${value}: compare with ${cur.value}`, undefined, i));
 
       if (value < cur.value) {
         if (cur.left === null) {
           cur.left = newId;
           newNode.parent = curId;
-          const insertStates = new Map<number, TreeNodeState>();
-          for (const id of pathIds) insertStates.set(id, "path");
-          insertStates.set(newId, "inserted");
-          frames.push(
-            buildFrame(
-              nodeMap,
-              rootId,
-              insertStates,
-              comparisons,
-              `Insert ${value} as left child of ${cur.value}`
-            )
-          );
+          const ins = new Map<number, TreeNodeState>();
+          for (const id of pathIds) ins.set(id, "path");
+          ins.set(newId, "inserted");
+          frames.push(buildFrame(nodeMap, rootId, ins, comparisons, `Insert ${value} as left child of ${cur.value}`, undefined, i));
           break;
         }
         curId = cur.left;
@@ -68,32 +51,20 @@ export function buildBST(values: number[]): TreeTrace {
         if (cur.right === null) {
           cur.right = newId;
           newNode.parent = curId;
-          const insertStates = new Map<number, TreeNodeState>();
-          for (const id of pathIds) insertStates.set(id, "path");
-          insertStates.set(newId, "inserted");
-          frames.push(
-            buildFrame(
-              nodeMap,
-              rootId,
-              insertStates,
-              comparisons,
-              `Insert ${value} as right child of ${cur.value}`
-            )
-          );
+          const ins = new Map<number, TreeNodeState>();
+          for (const id of pathIds) ins.set(id, "path");
+          ins.set(newId, "inserted");
+          frames.push(buildFrame(nodeMap, rootId, ins, comparisons, `Insert ${value} as right child of ${cur.value}`, undefined, i));
           break;
         }
         curId = cur.right;
       }
     }
 
-    // Rest frame: all default
-    frames.push(buildFrame(nodeMap, rootId, new Map(), comparisons));
+    frames.push(buildFrame(nodeMap, rootId, new Map(), comparisons, undefined, undefined, i));
   }
 
-  // Final frame showing complete tree
-  frames.push(
-    buildFrame(nodeMap, rootId, new Map(), comparisons, "BST construction complete")
-  );
+  frames.push(buildFrame(nodeMap, rootId, new Map(), comparisons, "BST construction complete"));
 
   return {
     frames,

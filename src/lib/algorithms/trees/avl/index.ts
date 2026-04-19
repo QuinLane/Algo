@@ -1,174 +1,79 @@
-import type { TreeTrace, TreeNodeState } from "@/types/algorithm";
+import type { TreeTrace, TreeFrame, TreeNodeState } from "@/types/algorithm";
 import { buildFrame, getTreeHeight, type RawNode } from "@/lib/utils/treeUtils";
 
-type RotationType = "LL" | "RR" | "LR" | "RL";
-
 export function buildAVL(values: number[]): TreeTrace {
-  const frames = [];
+  const frames: TreeFrame[] = [];
   const nodeMap = new Map<number, RawNode>();
   let rootId: number | null = null;
   let nextId = 0;
   let comparisons = 0;
 
-  function height(id: number | null): number {
-    if (id === null) return 0;
-    return nodeMap.get(id)?.height ?? 1;
+  function h(id: number | null): number {
+    return id === null ? 0 : (nodeMap.get(id)?.height ?? 0);
   }
 
-  function balanceFactor(id: number | null): number {
-    if (id === null) return 0;
-    const node = nodeMap.get(id)!;
-    return height(node.left) - height(node.right);
+  // Post-order height/bf update — safe because AVL height is bounded O(log n)
+  function recalcPost(id: number | null): void {
+    if (id === null) return;
+    const n = nodeMap.get(id)!;
+    recalcPost(n.left);
+    recalcPost(n.right);
+    n.height = 1 + Math.max(h(n.left), h(n.right));
+    n.balanceFactor = h(n.left) - h(n.right);
   }
 
-  function updateHeight(id: number) {
-    const node = nodeMap.get(id)!;
-    const h = 1 + Math.max(height(node.left), height(node.right));
-    node.height = h;
-    node.balanceFactor = balanceFactor(id);
+  function getBf(id: number): number {
+    const n = nodeMap.get(id)!;
+    return h(n.left) - h(n.right);
   }
 
-  function refreshAllBalanceFactors() {
-    for (const id of nodeMap.keys()) updateHeight(id);
+  // Rotations only modify left/right child pointers — no parent pointers touched.
+  // The caller (pathIds walk-up) is responsible for updating the parent's child pointer.
+  function rotateRight(y: number): number {
+    const yNode = nodeMap.get(y)!;
+    const x = yNode.left!;
+    const xNode = nodeMap.get(x)!;
+    yNode.left = xNode.right;
+    xNode.right = y;
+    // Update heights bottom-up: y is now a child of x
+    yNode.height = 1 + Math.max(h(yNode.left), h(yNode.right));
+    xNode.height = 1 + Math.max(h(xNode.left), h(xNode.right));
+    return x;
   }
 
-  function rotateRight(yId: number): number {
-    const y = nodeMap.get(yId)!;
-    const xId = y.left!;
-    const x = nodeMap.get(xId)!;
-    const t2 = x.right;
-
-    x.right = yId;
-    y.left = t2;
-    if (t2 !== null) nodeMap.get(t2)!.parent = yId;
-    x.parent = y.parent;
-    y.parent = xId;
-
-    if (y.parent !== null) {
-      const parent = nodeMap.get(y.parent)!;
-      if (parent.left === yId) parent.left = xId;
-      else parent.right = xId;
-    }
-
-    updateHeight(yId);
-    updateHeight(xId);
-    return xId;
+  function rotateLeft(x: number): number {
+    const xNode = nodeMap.get(x)!;
+    const y = xNode.right!;
+    const yNode = nodeMap.get(y)!;
+    xNode.right = yNode.left;
+    yNode.left = x;
+    xNode.height = 1 + Math.max(h(xNode.left), h(xNode.right));
+    yNode.height = 1 + Math.max(h(yNode.left), h(yNode.right));
+    return y;
   }
 
-  function rotateLeft(xId: number): number {
-    const x = nodeMap.get(xId)!;
-    const yId = x.right!;
-    const y = nodeMap.get(yId)!;
-    const t2 = y.left;
-
-    y.left = xId;
-    x.right = t2;
-    if (t2 !== null) nodeMap.get(t2)!.parent = xId;
-    y.parent = x.parent;
-    x.parent = yId;
-
-    if (y.parent !== null) {
-      const parent = nodeMap.get(y.parent)!;
-      if (parent.left === xId) parent.left = yId;
-      else parent.right = yId;
-    }
-
-    updateHeight(xId);
-    updateHeight(yId);
-    return yId;
+  function snap(
+    states: Map<number, TreeNodeState>,
+    insertionIndex: number | undefined,
+    message?: string
+  ): void {
+    recalcPost(rootId);
+    frames.push(buildFrame(nodeMap, rootId, states, comparisons, message, undefined, insertionIndex));
   }
 
-  function rebalance(id: number): number {
-    updateHeight(id);
-    const bf = balanceFactor(id);
-    const node = nodeMap.get(id)!;
+  for (let i = 0; i < values.length; i++) {
+    const value = values[i];
 
-    if (bf > 1) {
-      const leftBf = balanceFactor(node.left);
-      if (leftBf < 0) {
-        // LR rotation
-        node.left = rotateLeft(node.left!);
-        nodeMap.get(node.left)!.parent = id;
-        return rotateRight(id);
-      }
-      // LL rotation
-      return rotateRight(id);
-    }
-
-    if (bf < -1) {
-      const rightBf = balanceFactor(node.right);
-      if (rightBf > 0) {
-        // RL rotation
-        node.right = rotateRight(node.right!);
-        nodeMap.get(node.right)!.parent = id;
-        return rotateLeft(id);
-      }
-      // RR rotation
-      return rotateLeft(id);
-    }
-
-    return id;
-  }
-
-  function getRotationType(id: number): RotationType | null {
-    const bf = balanceFactor(id);
-    const node = nodeMap.get(id)!;
-    if (bf > 1) {
-      return balanceFactor(node.left) < 0 ? "LR" : "LL";
-    }
-    if (bf < -1) {
-      return balanceFactor(node.right) > 0 ? "RL" : "RR";
-    }
-    return null;
-  }
-
-  function insertRec(parentId: number | null, isLeft: boolean, value: number): number {
-    const newId = nextId++;
-    const newNode: RawNode = {
-      id: newId,
-      value,
-      left: null,
-      right: null,
-      parent: parentId,
-      height: 1,
-      balanceFactor: 0,
-    };
-    nodeMap.set(newId, newNode);
-
-    if (parentId === null) {
-      rootId = newId;
-      refreshAllBalanceFactors();
-      const states = new Map<number, TreeNodeState>([[newId, "inserted"]]);
-      frames.push(buildFrame(nodeMap, rootId, states, comparisons, `Insert ${value} as root`));
-      return newId;
-    }
-
-    const parent = nodeMap.get(parentId)!;
-    if (isLeft) parent.left = newId;
-    else parent.right = newId;
-
-    refreshAllBalanceFactors();
-    const insertStates = new Map<number, TreeNodeState>([[newId, "inserted"]]);
-    frames.push(
-      buildFrame(
-        nodeMap,
-        rootId,
-        insertStates,
-        comparisons,
-        `Inserted ${value}`
-      )
-    );
-
-    return newId;
-  }
-
-  function insert(value: number) {
-    // Walk down and record comparisons
     if (rootId === null) {
-      insertRec(null, false, value);
-      return;
+      const newId = nextId++;
+      nodeMap.set(newId, { id: newId, value, left: null, right: null, parent: null, height: 1, balanceFactor: 0 });
+      rootId = newId;
+      snap(new Map([[newId, "inserted"]]), i, `Insert ${value} as root`);
+      snap(new Map(), i);
+      continue;
     }
 
+    // Iterative descent — collect path for rebalance walk-up
     const pathIds: number[] = [];
     let curId = rootId;
 
@@ -178,82 +83,89 @@ export function buildAVL(values: number[]): TreeTrace {
       pathIds.push(curId);
 
       const states = new Map<number, TreeNodeState>();
-      for (const id of pathIds.slice(0, -1)) states.set(id, "path");
+      for (const pid of pathIds.slice(0, -1)) states.set(pid, "path");
       states.set(curId, "active");
-      frames.push(
-        buildFrame(
-          nodeMap,
-          rootId,
-          states,
-          comparisons,
-          `Insert ${value}: compare with ${cur.value}`
-        )
-      );
+      snap(states, i, `Insert ${value}: compare with ${cur.value}`);
 
       if (value < cur.value) {
         if (cur.left === null) {
-          insertRec(curId, true, value);
+          const newId = nextId++;
+          nodeMap.set(newId, { id: newId, value, left: null, right: null, parent: null, height: 1, balanceFactor: 0 });
+          cur.left = newId;
+          const ins = new Map<number, TreeNodeState>();
+          for (const pid of pathIds) ins.set(pid, "path");
+          ins.set(newId, "inserted");
+          snap(ins, i, `Inserted ${value}`);
           break;
         }
         curId = cur.left;
       } else {
         if (cur.right === null) {
-          insertRec(curId, false, value);
+          const newId = nextId++;
+          nodeMap.set(newId, { id: newId, value, left: null, right: null, parent: null, height: 1, balanceFactor: 0 });
+          cur.right = newId;
+          const ins = new Map<number, TreeNodeState>();
+          for (const pid of pathIds) ins.set(pid, "path");
+          ins.set(newId, "inserted");
+          snap(ins, i, `Inserted ${value}`);
           break;
         }
         curId = cur.right;
       }
     }
 
-    // Walk back up and rebalance
-    // Rebuild path from root to find insertion point ancestors
-    const ancestors = [...pathIds].reverse();
-    for (const ancId of ancestors) {
-      const rotType = getRotationType(ancId);
-      if (rotType) {
-        refreshAllBalanceFactors();
-        const preRotStates = new Map<number, TreeNodeState>([[ancId, "rotated"]]);
-        frames.push(
-          buildFrame(
-            nodeMap,
-            rootId,
-            preRotStates,
-            comparisons,
-            `${rotType} rotation at node ${nodeMap.get(ancId)!.value}`
-          )
-        );
+    // Walk back up pathIds to find and fix any imbalance
+    for (let j = pathIds.length - 1; j >= 0; j--) {
+      const nodeId = pathIds[j];
+      const node = nodeMap.get(nodeId)!;
+      // Recompute height for this node before checking balance
+      node.height = 1 + Math.max(h(node.left), h(node.right));
+      const balance = getBf(nodeId);
 
-        const newTop = rebalance(ancId);
-        if (ancId === rootId) rootId = newTop;
+      if (Math.abs(balance) > 1) {
+        let rotType: string;
+        let newTop: number;
 
-        refreshAllBalanceFactors();
-        const postRotStates = new Map<number, TreeNodeState>([[newTop, "inserted"]]);
-        frames.push(
-          buildFrame(
-            nodeMap,
-            rootId,
-            postRotStates,
-            comparisons,
-            `After ${rotType} rotation`
-          )
-        );
-      } else {
-        updateHeight(ancId);
+        if (balance > 1) {
+          if (getBf(node.left!) < 0) {
+            rotType = "LR";
+            node.left = rotateLeft(node.left!);
+            newTop = rotateRight(nodeId);
+          } else {
+            rotType = "LL";
+            newTop = rotateRight(nodeId);
+          }
+        } else {
+          if (getBf(node.right!) > 0) {
+            rotType = "RL";
+            node.right = rotateRight(node.right!);
+            newTop = rotateLeft(nodeId);
+          } else {
+            rotType = "RR";
+            newTop = rotateLeft(nodeId);
+          }
+        }
+
+        // Attach new subtree root to its parent
+        if (j > 0) {
+          const parent = nodeMap.get(pathIds[j - 1])!;
+          if (parent.left === nodeId) parent.left = newTop;
+          else parent.right = newTop;
+        } else {
+          rootId = newTop;
+        }
+
+        snap(new Map([[newTop, "rotated"]]), i, `${rotType} rotation at ${node.value}`);
+        snap(new Map([[newTop, "inserted"]]), i, `After ${rotType} rotation`);
+        break; // AVL: at most one rotation per insertion
       }
     }
 
-    refreshAllBalanceFactors();
-    frames.push(buildFrame(nodeMap, rootId, new Map(), comparisons));
+    snap(new Map(), i);
   }
 
-  for (const value of values) {
-    insert(value);
-  }
-
-  refreshAllBalanceFactors();
-  frames.push(
-    buildFrame(nodeMap, rootId, new Map(), comparisons, "AVL tree construction complete")
-  );
+  recalcPost(rootId);
+  snap(new Map(), undefined, "AVL tree construction complete");
 
   return {
     frames,

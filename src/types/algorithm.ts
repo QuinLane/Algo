@@ -126,6 +126,7 @@ export interface TreeFrame {
   message?: string;
   outputList?: number[];
   comparisons: number;
+  insertionIndex?: number;
 }
 
 export interface TreeTrace {
