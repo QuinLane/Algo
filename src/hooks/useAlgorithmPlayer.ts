@@ -24,11 +24,12 @@ export function useAlgorithmPlayer(trace: SortTrace | null) {
   const traceRef = useRef(trace);
 
   useEffect(() => {
+    stopRaf();
     traceRef.current = trace;
     setStep(0);
     stepRef.current = 0;
     setPlayerState("idle");
-  }, [trace]);
+  }, [trace, stopRaf]);
 
   const stopRaf = useCallback(() => {
     if (rafRef.current !== null) {
