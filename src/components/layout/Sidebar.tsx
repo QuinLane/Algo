@@ -45,6 +45,15 @@ const navItems = [
       { label: "Dijkstra (Grid)", href: "/pathfinding/dijkstra" },
     ],
   },
+  {
+    label: "Trees",
+    href: "/trees",
+    children: [
+      { label: "Binary Search Tree", href: "/trees/bst" },
+      { label: "AVL Tree", href: "/trees/avl" },
+      { label: "Traversals", href: "/trees/traversals" },
+    ],
+  },
 ];
 
 export default function Sidebar() {

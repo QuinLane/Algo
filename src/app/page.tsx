@@ -1,10 +1,11 @@
-import { sortAlgorithms, searchAlgorithms, graphAlgorithms } from "@/lib/registry";
+import { sortAlgorithms, searchAlgorithms, graphAlgorithms, treeAlgorithms } from "@/lib/registry";
 import AlgorithmCard from "@/components/layout/AlgorithmCard";
 
 const sections = [
   { title: "Sorting", algorithms: sortAlgorithms },
   { title: "Searching", algorithms: searchAlgorithms },
   { title: "Graph", algorithms: graphAlgorithms },
+  { title: "Trees", algorithms: treeAlgorithms },
 ];
 
 export default function Home() {
