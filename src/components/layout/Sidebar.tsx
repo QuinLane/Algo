@@ -37,6 +37,14 @@ const navItems = [
       { label: "Dijkstra", href: "/graph/dijkstra" },
     ],
   },
+  {
+    label: "Pathfinding",
+    href: "/pathfinding",
+    children: [
+      { label: "A*", href: "/pathfinding/astar" },
+      { label: "Dijkstra (Grid)", href: "/pathfinding/dijkstra" },
+    ],
+  },
 ];
 
 export default function Sidebar() {

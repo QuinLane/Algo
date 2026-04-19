@@ -111,10 +111,29 @@ export const registry: AlgorithmMeta[] = [
     description:
       "Finds the shortest path from a source node to all other nodes in a weighted graph.",
   },
+  {
+    id: "astar",
+    name: "A* Search",
+    category: "pathfinding",
+    route: "/pathfinding/astar",
+    timeComplexity: "O(b^d)",
+    spaceComplexity: "O(b^d)",
+    description:
+      "Finds the shortest path on a grid using a heuristic to steer exploration toward the goal.",
+  },
+  {
+    id: "dijkstra-grid",
+    name: "Dijkstra (Grid)",
+    category: "pathfinding",
+    route: "/pathfinding/dijkstra",
+    timeComplexity: "O(V log V)",
+    spaceComplexity: "O(V)",
+    description:
+      "Finds the shortest grid path without a heuristic, expanding outward uniformly from the start.",
+  },
 ];
 
 export const sortAlgorithms = registry.filter((a) => a.category === "sort");
-export const searchAlgorithms = registry.filter(
-  (a) => a.category === "search"
-);
+export const searchAlgorithms = registry.filter((a) => a.category === "search");
 export const graphAlgorithms = registry.filter((a) => a.category === "graph");
+export const pathfindingAlgorithms = registry.filter((a) => a.category === "pathfinding");
