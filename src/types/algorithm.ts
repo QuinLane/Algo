@@ -135,9 +135,34 @@ export interface TreeTrace {
   treeHeight: number;
 }
 
+// Dynamic Programming
+
+export type DPCellState = "default" | "active" | "filled" | "dependency" | "result";
+
+export interface DPCell {
+  value: number | null;
+  state: DPCellState;
+}
+
+export interface DPFrame {
+  table: DPCell[][];
+  message?: string;
+  fills: number;
+  depCells?: Array<[number, number]>;
+}
+
+export interface DPTrace {
+  frames: DPFrame[];
+  totalFills: number;
+  result: number;
+  mode: "1d" | "2d";
+  rowHeaders?: string[];
+  colHeaders?: string[];
+}
+
 // Shared
 
-export type AlgorithmCategory = "sort" | "search" | "graph" | "pathfinding" | "tree";
+export type AlgorithmCategory = "sort" | "search" | "graph" | "pathfinding" | "tree" | "dynamic";
 
 export interface AlgorithmMeta {
   id: string;
