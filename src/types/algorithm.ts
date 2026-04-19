@@ -68,9 +68,37 @@ export interface GraphTrace {
   edgesRelaxed: number;
 }
 
+// Pathfinding
+
+export type CellState = "empty" | "wall" | "start" | "end" | "visited" | "frontier" | "path";
+
+export interface Cell {
+  row: number;
+  col: number;
+  state: CellState;
+  g?: number;
+  h?: number;
+  f?: number;
+}
+
+export interface PathfindingFrame {
+  grid: Cell[][];
+  open: Array<[number, number]>;
+  closed: Array<[number, number]>;
+  current?: [number, number];
+  path?: Array<[number, number]>;
+}
+
+export interface PathfindingTrace {
+  frames: PathfindingFrame[];
+  nodesExplored: number;
+  pathLength: number;
+  pathFound: boolean;
+}
+
 // Shared
 
-export type AlgorithmCategory = "sort" | "search" | "graph";
+export type AlgorithmCategory = "sort" | "search" | "graph" | "pathfinding";
 
 export interface AlgorithmMeta {
   id: string;
