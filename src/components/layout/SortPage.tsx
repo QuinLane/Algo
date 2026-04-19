@@ -92,7 +92,10 @@ export default function SortPage({
   };
 
   const handlePlay = () => {
-    setStartTime(Date.now() - elapsedMs);
+    const resumed = playerState === "paused";
+    const base = resumed ? elapsedMs : 0;
+    if (!resumed) setElapsedMs(0);
+    setStartTime(Date.now() - base);
     play();
   };
 
