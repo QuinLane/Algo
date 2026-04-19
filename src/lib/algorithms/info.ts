@@ -14,6 +14,7 @@ import { info as astarInfo } from "./pathfinding/astar/info";
 import { info as dijkstraGridInfo } from "./pathfinding/dijkstra-grid/info";
 import { info as bstInfo } from "./trees/bst/info";
 import { info as avlInfo } from "./trees/avl/info";
+import { info as treeTraversalsInfo } from "./trees/traversals/info";
 
 // Entries added here with each algorithm info commit
 const infoRegistry: Record<string, AlgorithmInfoContent> = {
@@ -32,6 +33,7 @@ const infoRegistry: Record<string, AlgorithmInfoContent> = {
   "dijkstra-grid": dijkstraGridInfo,
   bst: bstInfo,
   avl: avlInfo,
+  "tree-traversals": treeTraversalsInfo,
 };
 
 export function getAlgorithmInfo(id: string): AlgorithmInfoContent | undefined {
