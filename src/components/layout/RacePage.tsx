@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { bubbleSort } from "@/lib/algorithms/sorting/bubble";
 import { insertionSort } from "@/lib/algorithms/sorting/insertion";
 import { selectionSort } from "@/lib/algorithms/sorting/selection";
@@ -10,6 +10,7 @@ import { heapSort } from "@/lib/algorithms/sorting/heap";
 import { generateArray, shuffleArray } from "@/lib/utils/arrayUtils";
 import { useAlgorithmPlayer } from "@/hooks/useAlgorithmPlayer";
 import BarVisualizer from "@/components/visualizer/BarVisualizer";
+import { useRaceAudio } from "@/hooks/useRaceAudio";
 import type { SortTrace } from "@/types/algorithm";
 
 const ALGORITHMS = [
@@ -43,6 +44,16 @@ export default function RacePage() {
 
   const leftPlayer = useAlgorithmPlayer(leftTrace);
   const rightPlayer = useAlgorithmPlayer(rightTrace);
+
+  const maxValue = useMemo(
+    () => Math.max(...(leftTrace?.frames[0]?.array ?? [100])),
+    [leftTrace]
+  );
+  const { enabled: soundEnabled, toggle: toggleSound } = useRaceAudio(
+    leftPlayer.frame,
+    rightPlayer.frame,
+    maxValue
+  );
 
   const buildTraces = useCallback((size: number, lId: string, rId: string) => {
     const arr = shuffleArray(generateArray(size));
@@ -244,6 +255,17 @@ export default function RacePage() {
           className="px-3 py-2 rounded bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-accent)] transition-all duration-100 active:scale-95 text-sm font-mono"
         >
           Reset
+        </button>
+        <button
+          onClick={toggleSound}
+          className={`w-8 h-8 flex items-center justify-center rounded border transition-all duration-100 active:scale-90 text-sm ${
+            soundEnabled
+              ? "bg-[var(--color-accent)] border-[var(--color-accent)] text-black"
+              : "bg-[var(--color-bg-card)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-accent)]"
+          }`}
+          title={soundEnabled ? "Mute" : "Unmute"}
+        >
+          {soundEnabled ? "🔊" : "🔇"}
         </button>
         <div className="flex items-center gap-1 ml-2">
           {SPEEDS.map((s) => (

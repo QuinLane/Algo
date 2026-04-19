@@ -5,10 +5,9 @@ function getCtx(): AudioContext {
   return ctx;
 }
 
-export function playTone(value: number, maxValue: number): void {
+export function playTone(value: number, maxValue: number, minFreq = 120, maxFreq = 1200): void {
   const ac = getCtx();
-  // map value to frequency: 120Hz (low) to 1200Hz (high)
-  const freq = 120 + (value / maxValue) * 1080;
+  const freq = minFreq + (value / maxValue) * (maxFreq - minFreq);
   const osc = ac.createOscillator();
   const gain = ac.createGain();
 
