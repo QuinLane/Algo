@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { AlgorithmMeta, PathfindingTrace } from "@/types/algorithm";
 import type { GridData, GridPreset } from "@/lib/utils/gridUtils";
-import { generateEmptyGrid, generateMaze, GRID_PRESETS } from "@/lib/utils/gridUtils";
+import { generateEmptyGrid, generateMaze, GRID_PRESETS, cloneGrid } from "@/lib/utils/gridUtils";
 import { useGridPlayer } from "@/hooks/useGridPlayer";
+import { useGridAudio } from "@/hooks/useGridAudio";
 import GridVisualizer from "@/components/visualizer/GridVisualizer";
 import PlayerControls from "@/components/controls/PlayerControls";
 import StepScrubber from "@/components/controls/StepScrubber";
@@ -17,13 +18,27 @@ interface Props {
   generateTrace: (data: GridData) => PathfindingTrace;
 }
 
+const PRESET_LABELS: Record<GridPreset, string> = {
+  small: `Small — ${GRID_PRESETS.small.rows}×${GRID_PRESETS.small.cols}`,
+  medium: `Medium — ${GRID_PRESETS.medium.rows}×${GRID_PRESETS.medium.cols}`,
+  large: `Large — ${GRID_PRESETS.large.rows}×${GRID_PRESETS.large.cols}`,
+};
+
 export default function PathfindingPage({ meta, generateTrace }: Props) {
   const [preset, setPreset] = useState<GridPreset>("medium");
   const [gridData, setGridData] = useState<GridData | null>(null);
   const [trace, setTrace] = useState<PathfindingTrace | null>(null);
+  const [brushSize, setBrushSize] = useState(1);
+  const [mazeOpen, setMazeOpen] = useState(false);
+  const mazeMenuRef = useRef<HTMLDivElement>(null);
 
   const { step, totalSteps, frame, playerState, speed, setSpeed, play, pause, stepForward, stepBack, scrubTo, reset } =
     useGridPlayer(trace);
+
+  const { enabled: soundEnabled, toggle: toggleSound } = useGridAudio(
+    playerState !== "idle" ? frame : null,
+    gridData
+  );
 
   const isEditing = playerState === "idle" || playerState === "done";
 
@@ -35,42 +50,45 @@ export default function PathfindingPage({ meta, generateTrace }: Props) {
     [generateTrace, reset]
   );
 
-  const handleNewGrid = useCallback(() => {
+  const handleMaze = useCallback(
+    (p: GridPreset = preset) => {
+      setPreset(p);
+      setMazeOpen(false);
+      const { rows, cols } = GRID_PRESETS[p];
+      const data = generateMaze(rows, cols);
+      setGridData(data);
+      buildTrace(data);
+    },
+    [preset, buildTrace]
+  );
+
+  const handleClear = useCallback(() => {
     const { rows, cols } = GRID_PRESETS[preset];
     const data = generateEmptyGrid(rows, cols);
     setGridData(data);
     buildTrace(data);
   }, [preset, buildTrace]);
 
-  const handleMaze = useCallback(() => {
-    const { rows, cols } = GRID_PRESETS[preset];
-    const data = generateMaze(rows, cols);
-    setGridData(data);
-    buildTrace(data);
-  }, [preset, buildTrace]);
-
-  const handlePresetChange = useCallback(
-    (p: GridPreset) => {
-      setPreset(p);
-      const { rows, cols } = GRID_PRESETS[p];
-      const data = generateEmptyGrid(rows, cols);
-      setGridData(data);
-      buildTrace(data);
-    },
-    [buildTrace]
-  );
-
   const handleCellDraw = useCallback(
-    (row: number, col: number, mode: "wall" | "erase") => {
-      if (!gridData) return;
+    (centerRow: number, centerCol: number, mode: "wall" | "erase") => {
       setGridData((prev) => {
         if (!prev) return prev;
-        const newGrid = prev.grid.map((r) => r.map((c) => ({ ...c })));
-        newGrid[row][col].state = mode === "wall" ? "wall" : "empty";
+        const newGrid = cloneGrid(prev.grid);
+        const radius = brushSize - 1;
+        for (let dr = -radius; dr <= radius; dr++) {
+          for (let dc = -radius; dc <= radius; dc++) {
+            const r = centerRow + dr;
+            const c = centerCol + dc;
+            if (r < 0 || r >= prev.rows || c < 0 || c >= prev.cols) continue;
+            const state = newGrid[r][c].state;
+            if (state === "start" || state === "end") continue;
+            newGrid[r][c].state = mode === "wall" ? "wall" : "empty";
+          }
+        }
         return { ...prev, grid: newGrid };
       });
     },
-    [gridData]
+    [brushSize]
   );
 
   const handleDrawEnd = useCallback(() => {
@@ -81,6 +99,25 @@ export default function PathfindingPage({ meta, generateTrace }: Props) {
       return prev;
     });
   }, [generateTrace, reset]);
+
+  const handleNodeDrop = useCallback(
+    (type: "start" | "end", row: number, col: number) => {
+      setGridData((prev) => {
+        if (!prev) return prev;
+        const newGrid = cloneGrid(prev.grid);
+        const oldPos = type === "start" ? prev.startPos : prev.endPos;
+        newGrid[oldPos[0]][oldPos[1]].state = "empty";
+        newGrid[row][col].state = type;
+        const newStart = type === "start" ? [row, col] as [number, number] : prev.startPos;
+        const newEnd = type === "end" ? [row, col] as [number, number] : prev.endPos;
+        const updated = { ...prev, grid: newGrid, startPos: newStart, endPos: newEnd };
+        setTrace(generateTrace(updated));
+        reset();
+        return updated;
+      });
+    },
+    [generateTrace, reset]
+  );
 
   useEffect(() => {
     const { rows, cols } = GRID_PRESETS[preset];
@@ -107,12 +144,24 @@ export default function PathfindingPage({ meta, generateTrace }: Props) {
           { label: "Space", value: meta.spaceComplexity },
           { label: "Nodes explored", value: nodesExplored },
           { label: "Path length", value: pathFound ? pathLength : "—" },
-          { label: "Path found", value: pathFound ? "Yes" : trace ? "No" : "—" },
+          {
+            label: "Path found",
+            value: pathFound ? "Yes" : trace ? "No" : "—",
+            accent: pathFound ? "cyan" : trace ? "red" : undefined,
+          },
           { label: "Step", value: `${step + 1} / ${totalSteps || 1}` },
-        ].map(({ label, value }) => (
+        ].map(({ label, value, accent }) => (
           <div key={label} className="flex flex-col gap-0.5">
             <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">{label}</span>
-            <span className={`text-sm font-mono ${label === "Path found" && pathFound ? "text-[var(--color-accent)]" : label === "Path found" && trace && !pathFound ? "text-red-400" : "text-[var(--color-text-primary)]"}`}>
+            <span
+              className={`text-sm font-mono ${
+                accent === "cyan"
+                  ? "text-[var(--color-accent)]"
+                  : accent === "red"
+                  ? "text-red-400"
+                  : "text-[var(--color-text-primary)]"
+              }`}
+            >
               {value}
             </span>
           </div>
@@ -126,56 +175,91 @@ export default function PathfindingPage({ meta, generateTrace }: Props) {
           isEditing={isEditing}
           onCellDraw={handleCellDraw}
           onDrawEnd={handleDrawEnd}
+          onNodeDrop={handleNodeDrop}
         />
       )}
 
       <div className="flex flex-col gap-3 p-4 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)]">
-        <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <PlayerControls
             playerState={playerState}
             speed={speed}
-            soundEnabled={false}
+            soundEnabled={soundEnabled}
             onPlay={play}
             onPause={pause}
             onStepBack={stepBack}
             onStepForward={stepForward}
             onSpeedChange={setSpeed}
-            onSoundToggle={() => {}}
+            onSoundToggle={toggleSound}
           />
+
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex rounded overflow-hidden border border-[var(--color-border)]">
-              {(["small", "medium", "large"] as GridPreset[]).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => handlePresetChange(p)}
-                  className={`px-2 py-1 text-xs font-mono capitalize transition-colors ${
-                    preset === p
-                      ? "bg-[var(--color-accent)] text-[#030712]"
-                      : "bg-[var(--color-bg-card)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={handleMaze}
-              className="px-3 py-1.5 rounded text-xs bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-accent)] transition-colors font-mono"
+            {/* Generate Maze hover dropdown */}
+            <div
+              ref={mazeMenuRef}
+              className="relative"
+              onMouseEnter={() => setMazeOpen(true)}
+              onMouseLeave={() => setMazeOpen(false)}
             >
-              Generate Maze
-            </button>
+              <button
+                className="px-3 py-1.5 rounded text-xs bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-accent)] transition-colors font-mono flex items-center gap-1"
+              >
+                Generate Maze
+                <span className="text-[var(--color-text-muted)] text-[10px]">▾</span>
+              </button>
+              {mazeOpen && (
+                <div className="absolute bottom-full left-0 mb-1 z-10 w-44 rounded border border-[var(--color-border)] bg-[var(--color-bg-secondary)] overflow-hidden shadow-lg">
+                  {(["small", "medium", "large"] as GridPreset[]).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => handleMaze(p)}
+                      className={`w-full px-3 py-2 text-left text-xs font-mono transition-colors ${
+                        preset === p
+                          ? "text-[var(--color-accent)] bg-[var(--color-border)]"
+                          : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-border)]"
+                      }`}
+                    >
+                      {PRESET_LABELS[p]}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <button
-              onClick={handleNewGrid}
+              onClick={handleClear}
               className="px-3 py-1.5 rounded text-xs bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-accent)] transition-colors font-mono"
             >
               Clear
             </button>
+
+            {/* Brush size */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-mono">Brush</span>
+              <div className="flex rounded overflow-hidden border border-[var(--color-border)]">
+                {[1, 2, 3, 4].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setBrushSize(n)}
+                    className={`w-6 h-6 text-xs font-mono transition-colors ${
+                      brushSize === n
+                        ? "bg-[var(--color-accent)] text-[#030712]"
+                        : "bg-[var(--color-bg-card)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
+
         <StepScrubber step={step} totalSteps={totalSteps} onScrub={scrubTo} />
+
         {isEditing && (
           <p className="text-[10px] text-[var(--color-text-muted)] font-mono">
-            Click or drag on the grid to draw walls · Press play to run the algorithm
+            Click or drag to draw walls · Drag S/E to reposition · Press play to run
           </p>
         )}
       </div>
