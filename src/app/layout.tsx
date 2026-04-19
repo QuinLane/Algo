@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/layout/Sidebar";
+import PageTransition from "@/components/layout/PageTransition";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -22,7 +23,9 @@ export default function RootLayout({
     <html lang="en" className={`${geistMono.variable} h-full`}>
       <body className="min-h-full flex bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
         <Sidebar />
-        <main className="flex-1 overflow-auto pt-12 md:pt-0">{children}</main>
+        <main className="flex-1 overflow-auto pt-12 md:pt-0">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </body>
     </html>
   );

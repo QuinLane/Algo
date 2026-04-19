@@ -60,7 +60,7 @@ export default function AlgorithmCard({ algo }: { algo: AlgorithmMeta }) {
       href={algo.route}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="block p-5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] hover:border-[var(--color-accent)] hover:bg-[var(--color-bg-secondary)] transition-colors group"
+      className="block p-5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-card)] hover:border-[var(--color-accent)] hover:bg-[var(--color-bg-secondary)] hover:-translate-y-0.5 transition-all duration-150 group"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <h3 className="font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
