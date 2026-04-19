@@ -7,6 +7,7 @@ import pkg from "../../../package.json";
 
 const navItems = [
   { label: "Home", href: "/" },
+  { label: "Race", href: "/race" },
   {
     label: "Sorting",
     href: "/sort",
