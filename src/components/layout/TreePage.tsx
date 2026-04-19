@@ -85,6 +85,16 @@ export default function TreePage({ meta, showTraversalSelector, generateTrace }:
   const algorithmInfo = getAlgorithmInfo(meta.id);
   const treeHeight = trace?.treeHeight ?? 0;
 
+  // Persist the last non-empty message so it doesn't vanish on rest frames
+  const displayMessage = useMemo(() => {
+    if (!trace) return null;
+    for (let i = step; i >= 0; i--) {
+      const msg = trace.frames[i]?.message;
+      if (msg) return msg;
+    }
+    return null;
+  }, [trace, step]);
+
   // Bubble panel: only for BST/AVL (not traversals)
   const inputValues = useMemo(() => parseValues(inputStr), [inputStr]);
   const insertionIndex = frame?.insertionIndex;
@@ -166,9 +176,9 @@ export default function TreePage({ meta, showTraversalSelector, generateTrace }:
         </div>
       )}
 
-      {frame?.message && (
+      {displayMessage && (
         <div className="px-3 py-2 rounded bg-[var(--color-border)]">
-          <p className="text-xs font-mono text-[var(--color-text-muted)]">{frame.message}</p>
+          <p className="text-xs font-mono text-[var(--color-text-muted)]">{displayMessage}</p>
         </div>
       )}
 
