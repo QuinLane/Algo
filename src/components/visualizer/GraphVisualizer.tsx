@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { GraphFrame } from "@/types/algorithm";
 
 const NODE_COLORS: Record<string, string> = {
@@ -26,6 +27,8 @@ interface Props {
 }
 
 export default function GraphVisualizer({ frame, showDistances = false }: Props) {
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+
   if (!frame) {
     return (
       <div className="w-full h-80 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] text-sm">
@@ -69,36 +72,66 @@ export default function GraphVisualizer({ frame, showDistances = false }: Props)
             );
           })}
 
-          {nodes.map((node) => (
-            <g key={node.id}>
-              <circle
-                cx={node.x} cy={node.y} r={r}
-                fill={NODE_COLORS[node.state]}
-                stroke={NODE_BORDER[node.state]}
-                strokeWidth={node.state === "visiting" ? 2.5 : 1.5}
-              />
-              <text
-                x={node.x} y={node.y + 1}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize="11"
-                fontWeight="bold"
-                fill={node.state === "unvisited" ? "var(--color-text-muted)" : "#000"}
+          {nodes.map((node) => {
+            const isHovered = hoveredNode === node.id;
+            return (
+              <g
+                key={node.id}
+                onMouseEnter={() => setHoveredNode(node.id)}
+                onMouseLeave={() => setHoveredNode(null)}
+                style={{ cursor: "default" }}
               >
-                {node.id}
-              </text>
-              {showDistances && node.distance !== undefined && node.distance !== Infinity && (
+                <circle
+                  cx={node.x} cy={node.y} r={isHovered ? r + 2 : r}
+                  fill={isHovered ? "var(--color-accent)" : NODE_COLORS[node.state]}
+                  stroke={isHovered ? "var(--color-accent)" : NODE_BORDER[node.state]}
+                  strokeWidth={isHovered ? 2.5 : node.state === "visiting" ? 2.5 : 1.5}
+                  style={{ transition: "r 0.1s ease, fill 0.1s ease" }}
+                />
                 <text
-                  x={node.x} y={node.y + r + 11}
+                  x={node.x} y={node.y + 1}
                   textAnchor="middle"
-                  fontSize="9"
-                  fill="var(--color-accent)"
+                  dominantBaseline="middle"
+                  fontSize="11"
+                  fontWeight="bold"
+                  fill={isHovered || node.state !== "unvisited" ? "#000" : "var(--color-text-muted)"}
                 >
-                  {node.distance}
+                  {node.id}
                 </text>
-              )}
-            </g>
-          ))}
+                {showDistances && node.distance !== undefined && node.distance !== Infinity && (
+                  <text
+                    x={node.x} y={node.y + r + 11}
+                    textAnchor="middle"
+                    fontSize="9"
+                    fill="var(--color-accent)"
+                  >
+                    {node.distance}
+                  </text>
+                )}
+                {isHovered && (
+                  <g>
+                    <rect
+                      x={node.x + r + 4} y={node.y - 11}
+                      width={58} height={16}
+                      rx={3}
+                      fill="var(--color-bg-card)"
+                      stroke="var(--color-border)"
+                      strokeWidth={0.5}
+                    />
+                    <text
+                      x={node.x + r + 33} y={node.y - 1}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fontSize="8"
+                      fill="var(--color-text-primary)"
+                    >
+                      {node.id}: {node.state}
+                    </text>
+                  </g>
+                )}
+              </g>
+            );
+          })}
         </svg>
       </div>
 

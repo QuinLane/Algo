@@ -25,7 +25,7 @@ export default function ArrayControls({ n, onNChange, onShuffle }: Props) {
       </div>
       <button
         onClick={onShuffle}
-        className="px-3 py-1.5 rounded text-xs bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-accent)] transition-colors font-mono"
+        className="px-3 py-1.5 rounded text-xs bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-accent)] transition-all duration-100 active:scale-95 font-mono"
       >
         Shuffle
       </button>

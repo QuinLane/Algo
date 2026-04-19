@@ -72,9 +72,9 @@ export default function Sidebar() {
         <div key={item.href}>
           <Link
             href={item.href}
-            className={`block px-2 py-1.5 rounded text-sm transition-colors ${
+            className={`block px-2 py-1.5 rounded text-sm transition-all duration-150 ${
               pathname === item.href
-                ? "text-[var(--color-accent)] bg-[var(--color-border)]"
+                ? "text-[var(--color-accent)] bg-[var(--color-border)] shadow-[0_0_8px_rgba(34,211,238,0.15)]"
                 : "text-[var(--color-text-primary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-border)]"
             }`}
           >
@@ -85,10 +85,10 @@ export default function Sidebar() {
               <Link
                 key={child.href}
                 href={child.href}
-                className={`block pl-5 pr-2 py-1 rounded text-xs transition-colors ${
+                className={`block pl-5 pr-2 py-1 rounded text-xs transition-all duration-150 ${
                   pathname === child.href
-                    ? "text-[var(--color-accent)]"
-                    : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+                    ? "text-[var(--color-accent)] shadow-[0_0_6px_rgba(34,211,238,0.12)]"
+                    : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-border)]"
                 }`}
               >
                 {child.label}

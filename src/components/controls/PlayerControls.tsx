@@ -33,7 +33,7 @@ export default function PlayerControls({
     <div className="flex items-center gap-3 flex-wrap">
       <button
         onClick={onStepBack}
-        className="w-8 h-8 flex items-center justify-center rounded bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)] text-[var(--color-text-primary)] transition-colors text-sm"
+        className="w-8 h-8 flex items-center justify-center rounded bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)] text-[var(--color-text-primary)] transition-all duration-100 active:scale-90 text-sm"
         title="Step back"
       >
         ◀
@@ -41,7 +41,7 @@ export default function PlayerControls({
 
       <button
         onClick={isPlaying ? onPause : onPlay}
-        className="w-10 h-10 flex items-center justify-center rounded bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-black font-bold transition-colors text-base"
+        className="w-10 h-10 flex items-center justify-center rounded bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-black font-bold transition-all duration-100 active:scale-90 text-base"
         title={isPlaying ? "Pause" : "Play"}
       >
         {isPlaying ? "⏸" : "▶"}
@@ -49,7 +49,7 @@ export default function PlayerControls({
 
       <button
         onClick={onStepForward}
-        className="w-8 h-8 flex items-center justify-center rounded bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)] text-[var(--color-text-primary)] transition-colors text-sm"
+        className="w-8 h-8 flex items-center justify-center rounded bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)] text-[var(--color-text-primary)] transition-all duration-100 active:scale-90 text-sm"
         title="Step forward"
       >
         ▶
@@ -57,7 +57,7 @@ export default function PlayerControls({
 
       <button
         onClick={onSoundToggle}
-        className={`w-8 h-8 flex items-center justify-center rounded border transition-colors text-sm ${
+        className={`w-8 h-8 flex items-center justify-center rounded border transition-all duration-100 active:scale-90 text-sm ${
           soundEnabled
             ? "bg-[var(--color-accent)] border-[var(--color-accent)] text-black"
             : "bg-[var(--color-bg-card)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-accent)]"
