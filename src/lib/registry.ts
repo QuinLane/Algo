@@ -161,6 +161,36 @@ export const registry: AlgorithmMeta[] = [
     description:
       "In-order, pre-order, and post-order traversals visit every node in a binary tree in a defined sequence.",
   },
+  {
+    id: "fibonacci-dp",
+    name: "Fibonacci (DP)",
+    category: "dynamic",
+    route: "/dynamic/fibonacci",
+    timeComplexity: "O(n)",
+    spaceComplexity: "O(n)",
+    description:
+      "Computes Fibonacci numbers bottom-up using a memoization table, eliminating the exponential recomputation of the naive recursive approach.",
+  },
+  {
+    id: "edit-distance",
+    name: "Edit Distance",
+    category: "dynamic",
+    route: "/dynamic/edit-distance",
+    timeComplexity: "O(m·n)",
+    spaceComplexity: "O(m·n)",
+    description:
+      "Finds the minimum number of insertions, deletions, and substitutions to transform one string into another.",
+  },
+  {
+    id: "lcs",
+    name: "Longest Common Subsequence",
+    category: "dynamic",
+    route: "/dynamic/lcs",
+    timeComplexity: "O(m·n)",
+    spaceComplexity: "O(m·n)",
+    description:
+      "Finds the longest sequence of characters present in both strings in the same relative order.",
+  },
 ];
 
 export const sortAlgorithms = registry.filter((a) => a.category === "sort");
@@ -168,3 +198,4 @@ export const searchAlgorithms = registry.filter((a) => a.category === "search");
 export const graphAlgorithms = registry.filter((a) => a.category === "graph");
 export const pathfindingAlgorithms = registry.filter((a) => a.category === "pathfinding");
 export const treeAlgorithms = registry.filter((a) => a.category === "tree");
+export const dpAlgorithms = registry.filter((a) => a.category === "dynamic");

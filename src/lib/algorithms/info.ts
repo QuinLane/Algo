@@ -15,6 +15,9 @@ import { info as dijkstraGridInfo } from "./pathfinding/dijkstra-grid/info";
 import { info as bstInfo } from "./trees/bst/info";
 import { info as avlInfo } from "./trees/avl/info";
 import { info as treeTraversalsInfo } from "./trees/traversals/info";
+import { info as fibonacciDPInfo } from "./dynamic/fibonacci/info";
+import { info as editDistanceInfo } from "./dynamic/edit-distance/info";
+import { info as lcsInfo } from "./dynamic/lcs/info";
 
 // Entries added here with each algorithm info commit
 const infoRegistry: Record<string, AlgorithmInfoContent> = {
@@ -34,6 +37,9 @@ const infoRegistry: Record<string, AlgorithmInfoContent> = {
   bst: bstInfo,
   avl: avlInfo,
   "tree-traversals": treeTraversalsInfo,
+  "fibonacci-dp": fibonacciDPInfo,
+  "edit-distance": editDistanceInfo,
+  lcs: lcsInfo,
 };
 
 export function getAlgorithmInfo(id: string): AlgorithmInfoContent | undefined {

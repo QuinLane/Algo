@@ -54,6 +54,15 @@ const navItems = [
       { label: "Traversals", href: "/trees/traversals" },
     ],
   },
+  {
+    label: "Dynamic Programming",
+    href: "/dynamic",
+    children: [
+      { label: "Fibonacci", href: "/dynamic/fibonacci" },
+      { label: "Edit Distance", href: "/dynamic/edit-distance" },
+      { label: "LCS", href: "/dynamic/lcs" },
+    ],
+  },
 ];
 
 export default function Sidebar() {

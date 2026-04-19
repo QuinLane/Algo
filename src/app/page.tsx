@@ -1,4 +1,4 @@
-import { sortAlgorithms, searchAlgorithms, graphAlgorithms, treeAlgorithms } from "@/lib/registry";
+import { sortAlgorithms, searchAlgorithms, graphAlgorithms, treeAlgorithms, dpAlgorithms } from "@/lib/registry";
 import AlgorithmCard from "@/components/layout/AlgorithmCard";
 
 const sections = [
@@ -6,6 +6,7 @@ const sections = [
   { title: "Searching", algorithms: searchAlgorithms },
   { title: "Graph", algorithms: graphAlgorithms },
   { title: "Trees", algorithms: treeAlgorithms },
+  { title: "Dynamic Programming", algorithms: dpAlgorithms },
 ];
 
 export default function Home() {
