@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import pkg from "../../../package.json";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -95,6 +96,9 @@ export default function Sidebar() {
             ))}
         </div>
       ))}
+        <div className="mt-auto pt-6">
+          <p className="px-2 text-[10px] text-[var(--color-text-muted)] font-mono">v{pkg.version}</p>
+        </div>
       </nav>
     </>
   );
