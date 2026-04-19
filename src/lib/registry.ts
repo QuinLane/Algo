@@ -131,9 +131,40 @@ export const registry: AlgorithmMeta[] = [
     description:
       "Finds the shortest grid path without a heuristic, expanding outward uniformly from the start.",
   },
+  {
+    id: "bst",
+    name: "Binary Search Tree",
+    category: "tree",
+    route: "/trees/bst",
+    timeComplexity: "O(log n)",
+    spaceComplexity: "O(n)",
+    description:
+      "A tree where each node's left subtree holds smaller values and right subtree holds larger values, enabling efficient search and insertion.",
+  },
+  {
+    id: "avl",
+    name: "AVL Tree",
+    category: "tree",
+    route: "/trees/avl",
+    timeComplexity: "O(log n)",
+    spaceComplexity: "O(n)",
+    description:
+      "A self-balancing BST that performs rotations after each insertion to keep the tree height within O(log n).",
+  },
+  {
+    id: "tree-traversals",
+    name: "Tree Traversals",
+    category: "tree",
+    route: "/trees/traversals",
+    timeComplexity: "O(n)",
+    spaceComplexity: "O(h)",
+    description:
+      "In-order, pre-order, and post-order traversals visit every node in a binary tree in a defined sequence.",
+  },
 ];
 
 export const sortAlgorithms = registry.filter((a) => a.category === "sort");
 export const searchAlgorithms = registry.filter((a) => a.category === "search");
 export const graphAlgorithms = registry.filter((a) => a.category === "graph");
 export const pathfindingAlgorithms = registry.filter((a) => a.category === "pathfinding");
+export const treeAlgorithms = registry.filter((a) => a.category === "tree");
