@@ -1,15 +1,15 @@
 "use client";
 
-export type VizMode = "bar" | "arcs";
+import type { BarMode } from "@/components/visualizer/BarVisualizer";
 
-const MODES: { id: VizMode; label: string }[] = [
+const MODES: { id: BarMode; label: string }[] = [
   { id: "bar", label: "Bar" },
   { id: "arcs", label: "Arcs" },
 ];
 
 interface Props {
-  mode: VizMode;
-  onChange: (mode: VizMode) => void;
+  mode: BarMode;
+  onChange: (mode: BarMode) => void;
 }
 
 export default function VisualizerSwitcher({ mode, onChange }: Props) {
