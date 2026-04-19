@@ -23,6 +23,13 @@ export function useAlgorithmPlayer(trace: SortTrace | null) {
   const stepRef = useRef(0);
   const traceRef = useRef(trace);
 
+  const stopRaf = useCallback(() => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+  }, []);
+
   useEffect(() => {
     stopRaf();
     traceRef.current = trace;
@@ -30,13 +37,6 @@ export function useAlgorithmPlayer(trace: SortTrace | null) {
     stepRef.current = 0;
     setPlayerState("idle");
   }, [trace, stopRaf]);
-
-  const stopRaf = useCallback(() => {
-    if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-  }, []);
 
   const tick = useCallback(
     (timestamp: number) => {
