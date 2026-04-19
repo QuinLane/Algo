@@ -23,6 +23,15 @@ const ALGORITHMS = [
 
 const SPEEDS = [0.25, 0.5, 1, 2, 4];
 
+function liveStats(trace: SortTrace | null, step: number) {
+  if (!trace) return { comparisons: 0, writes: 0 };
+  const ratio = (step + 1) / trace.frames.length;
+  return {
+    comparisons: Math.round(trace.comparisons * ratio),
+    writes: Math.round(trace.writes * ratio),
+  };
+}
+
 export default function RacePage() {
   const [n, setN] = useState(32);
   const [leftId, setLeftId] = useState("bubble-sort");
@@ -30,6 +39,7 @@ export default function RacePage() {
   const [leftTrace, setLeftTrace] = useState<SortTrace | null>(null);
   const [rightTrace, setRightTrace] = useState<SortTrace | null>(null);
   const [speed, setSpeedState] = useState(1);
+  const [winner, setWinner] = useState<"left" | "right" | "tie" | null>(null);
 
   const leftPlayer = useAlgorithmPlayer(leftTrace);
   const rightPlayer = useAlgorithmPlayer(rightTrace);
@@ -46,6 +56,16 @@ export default function RacePage() {
     buildTraces(n, leftId, rightId);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // winner detection — fires whenever either player finishes
+  useEffect(() => {
+    if (winner !== null) return;
+    const ld = leftPlayer.playerState === "done";
+    const rd = rightPlayer.playerState === "done";
+    if (ld && rd) setWinner("tie");
+    else if (ld) setWinner("left");
+    else if (rd) setWinner("right");
+  }, [leftPlayer.playerState, rightPlayer.playerState, winner]);
+
   const handlePlay = () => {
     leftPlayer.play();
     rightPlayer.play();
@@ -59,9 +79,13 @@ export default function RacePage() {
   const handleReset = () => {
     leftPlayer.reset();
     rightPlayer.reset();
+    setWinner(null);
   };
 
-  const handleShuffle = () => buildTraces(n, leftId, rightId);
+  const handleShuffle = () => {
+    buildTraces(n, leftId, rightId);
+    setWinner(null);
+  };
 
   const handleNChange = (newN: number) => {
     setN(newN);
@@ -71,11 +95,13 @@ export default function RacePage() {
   const handleLeftIdChange = (id: string) => {
     setLeftId(id);
     buildTraces(n, id, rightId);
+    setWinner(null);
   };
 
   const handleRightIdChange = (id: string) => {
     setRightId(id);
     buildTraces(n, leftId, id);
+    setWinner(null);
   };
 
   const handleSpeedChange = (s: number) => {
@@ -89,6 +115,8 @@ export default function RacePage() {
 
   const leftAlgo = ALGORITHMS.find((a) => a.id === leftId)!;
   const rightAlgo = ALGORITHMS.find((a) => a.id === rightId)!;
+  const leftSt = liveStats(leftTrace, leftPlayer.step);
+  const rightSt = liveStats(rightTrace, rightPlayer.step);
 
   return (
     <div className="p-6 max-w-6xl flex flex-col gap-5">
@@ -151,14 +179,56 @@ export default function RacePage() {
 
       {/* Visualizers */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-2 rounded-xl p-3 border border-[var(--color-border)]">
-          <span className="text-sm font-bold text-[var(--color-text-primary)]">{leftAlgo.name}</span>
-          <BarVisualizer frame={leftPlayer.frame} />
-        </div>
-        <div className="flex flex-col gap-2 rounded-xl p-3 border border-[var(--color-border)]">
-          <span className="text-sm font-bold text-[var(--color-text-primary)]">{rightAlgo.name}</span>
-          <BarVisualizer frame={rightPlayer.frame} />
-        </div>
+        {(
+          [
+            { algo: leftAlgo, player: leftPlayer, st: leftSt, side: "left" as const },
+            { algo: rightAlgo, player: rightPlayer, st: rightSt, side: "right" as const },
+          ] as const
+        ).map(({ algo, player, st, side }) => {
+          const isWinner = winner === side;
+          const isTie = winner === "tie";
+          return (
+            <div
+              key={side}
+              className={`flex flex-col gap-2 rounded-xl p-3 border transition-colors duration-300 ${
+                isWinner
+                  ? "border-[var(--color-accent)] shadow-[0_0_16px_rgba(34,211,238,0.12)]"
+                  : "border-[var(--color-border)]"
+              }`}
+            >
+              <div className="flex items-center justify-between h-6">
+                <span className="text-sm font-bold text-[var(--color-text-primary)]">{algo.name}</span>
+                {isWinner && (
+                  <span className="text-xs font-bold text-[var(--color-accent)] px-2 py-0.5 rounded bg-[var(--color-accent)]/10">
+                    WINNER
+                  </span>
+                )}
+                {isTie && (
+                  <span className="text-xs text-[var(--color-text-muted)] px-2 py-0.5 rounded bg-[var(--color-border)]">
+                    TIE
+                  </span>
+                )}
+              </div>
+              <BarVisualizer frame={player.frame} />
+              <div className="flex gap-4 text-[10px] font-mono text-[var(--color-text-muted)] px-1">
+                <span>
+                  Comparisons:{" "}
+                  <span className="text-[var(--color-text-primary)]">{st.comparisons}</span>
+                </span>
+                <span>
+                  Writes:{" "}
+                  <span className="text-[var(--color-text-primary)]">{st.writes}</span>
+                </span>
+                <span>
+                  Step:{" "}
+                  <span className="text-[var(--color-text-primary)]">
+                    {player.step}/{Math.max(0, player.totalSteps - 1)}
+                  </span>
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Controls */}
