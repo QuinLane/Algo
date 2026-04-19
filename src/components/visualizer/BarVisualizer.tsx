@@ -66,15 +66,14 @@ function Bars({
       })}
       {arcs.map((arc) => {
         const mx = (arc.x1 + arc.x2) / 2;
+        const d = `M ${arc.x1} 100 Q ${mx} ${100 - arc.height} ${arc.x2} 100`;
         return (
-          <path
-            key={arc.id}
-            d={`M ${arc.x1} 100 Q ${mx} ${100 - arc.height} ${arc.x2} 100`}
-            stroke={arc.color}
-            strokeWidth={0.5}
-            fill="none"
-            style={{ animation: "arcFade 0.6s ease forwards" }}
-          />
+          <g key={arc.id} style={{ animation: "arcFade 0.6s ease forwards" }}>
+            {/* glow halo */}
+            <path d={d} stroke={arc.color} strokeWidth={1.4} fill="none" opacity={0.25} />
+            {/* crisp arc */}
+            <path d={d} stroke={arc.color} strokeWidth={0.5} fill="none" />
+          </g>
         );
       })}
     </svg>
